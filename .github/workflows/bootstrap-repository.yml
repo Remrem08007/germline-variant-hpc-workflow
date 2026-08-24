@@ -47,3 +47,4 @@ jobs:
           git push origin HEAD:main
 
 # One-time bootstrap workflow; it removes itself after publishing v0.1.0.
+# Retry after restoring all archive chunks exactly.
