@@ -1,21 +1,21 @@
 name: Materialize repository
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-    paths:
-      - .github/workflows/bootstrap-repository.yml
-      - .bootstrap/trigger
 
 permissions:
   contents: write
 
 jobs:
   materialize:
+    if: github.head_ref == 'agent/materialize-v0.1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Reconstruct packaged repository
         shell: bash
@@ -33,11 +33,10 @@ jobs:
 
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$RUNNER_TEMP/repo/." .
-
-          rm -f .github/workflows/bootstrap-repository.yml
           rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap-repository.yml
 
-      - name: Commit repository
+      - name: Commit materialized repository
         shell: bash
         run: |
           set -euo pipefail
@@ -45,4 +44,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Publish germline variant HPC workflow v0.1.0"
-          git push origin HEAD:main
+          git push origin HEAD:${{ github.head_ref }}
