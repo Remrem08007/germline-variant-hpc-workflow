@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/bootstrap-repository.yml
+      - .bootstrap/trigger
 
 permissions:
   contents: write
@@ -45,6 +46,3 @@ jobs:
           git add -A
           git commit -m "Publish germline variant HPC workflow v0.1.0"
           git push origin HEAD:main
-
-# One-time bootstrap workflow; it removes itself after publishing v0.1.0.
-# Retry after restoring all archive chunks exactly.
