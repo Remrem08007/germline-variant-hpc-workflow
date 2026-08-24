@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2,library,platform
+sample01,/data/sample01_R1.fastq.gz,/data/sample01_R2.fastq.gz,lib1,ILLUMINA

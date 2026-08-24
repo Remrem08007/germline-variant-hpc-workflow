@@ -1,0 +1,7 @@
+filename	source
+fastqc.sif	docker://quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0
+fastp.sif	docker://quay.io/biocontainers/fastp:0.24.0--heae3180_1
+bwa_mem2.sif	docker://quay.io/biocontainers/bwa-mem2:2.3--he70b90d_0
+samtools.sif	docker://quay.io/biocontainers/samtools:1.21--h96c455f_1
+gatk.sif	docker://broadinstitute/gatk:4.6.2.0
+bcftools.sif	docker://quay.io/biocontainers/bcftools:1.21--h3a4d415_1

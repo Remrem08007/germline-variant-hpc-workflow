@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2,library,platform
+synthetic,sample_R1.fastq,sample_R2.fastq,synthetic-lib,ILLUMINA

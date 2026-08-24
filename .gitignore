@@ -1,0 +1,15 @@
+work/
+.nextflow/
+.nextflow.log*
+results/
+*.sif
+*.partial
+__pycache__/
+*.pyc
+.DS_Store
+# Derived BWA-MEM2 indexes for the committed synthetic reference
+tests/fixtures/synthetic-diploid/reference.fa.0123
+tests/fixtures/synthetic-diploid/reference.fa.amb
+tests/fixtures/synthetic-diploid/reference.fa.ann
+tests/fixtures/synthetic-diploid/reference.fa.bwt.2bit.64
+tests/fixtures/synthetic-diploid/reference.fa.pac

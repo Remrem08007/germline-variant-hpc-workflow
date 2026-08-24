@@ -1,0 +1,4 @@
+process {
+    // Example only. Keep site/account settings outside the public workflow.
+    // clusterOptions = '--account=<account> --partition=<partition>'
+}
