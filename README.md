@@ -6,6 +6,27 @@ The workflow takes paired FASTQ files through preprocessing, BWA-MEM2 alignment,
 
 The project is intentionally site- and study-agnostic: no scheduler account, cluster path, cohort naming scheme, private reference layout, or study-specific interpretation logic is hard-coded.
 
+## Validation status
+
+**End-to-end synthetic validation passed on Alliance Canada's Narval cluster using SLURM and Apptainer on 2026-08-24.**
+
+The committed 4 kb diploid fixture contains 60 paired fragments and three known heterozygous variants. The workflow recovered **3/3 truth variants**, and all three final calls were `PASS` with balanced 10/10 reference/alternate read support and genotype quality 99.
+
+| Truth variant | Type | FILTER | DP | AD | GT | GQ |
+| --- | --- | --- | ---: | --- | --- | ---: |
+| `chrSynthetic:1001 A>C` | SNP | PASS | 20 | 10,10 | 0/1 | 99 |
+| `chrSynthetic:2201 T>A` | SNP | PASS | 20 | 10,10 | 0/1 | 99 |
+| `chrSynthetic:3200 A>ATT` | 2-bp insertion | PASS | 20 | 10,10 | 0/1 | 99 |
+
+The validator returned:
+
+```text
+BIOLOGICAL TEST: PASS
+ - recovered truth variants: 3
+```
+
+This is **workflow validation on synthetic data**, not clinical validation or a sensitivity/specificity benchmark. See [`docs/narval-validation.md`](docs/narval-validation.md) for the recorded validation details.
+
 ## Workflow
 
 ```text
@@ -56,7 +77,7 @@ paired FASTQ
 - deterministic synthetic diploid fixture with known heterozygous SNPs and an insertion;
 - deterministic CI/stub execution plus a biological smoke-test validator.
 
-GATK documents HaplotypeCaller GVCF mode as the standard scalable germline calling model. The per-sample GVCFs produced here can later be combined with GenomicsDBImport/GenotypeGVCFs for cohort-scale joint genotyping.
+GATK HaplotypeCaller GVCF mode provides a scalable path from per-sample calling to later cohort joint genotyping. The per-sample GVCFs produced here can later be combined with GenomicsDBImport/GenotypeGVCFs for cohort-scale workflows.
 
 ## Requirements
 
@@ -127,17 +148,24 @@ The repository includes a complete small diploid test dataset:
 
 ```text
 tests/fixtures/synthetic-diploid/
+├── README.md
+├── known_sites.vcf
+├── reference.dict
 ├── reference.fa
 ├── reference.fa.fai
-├── reference.dict
-├── truth.vcf
-├── known_sites.vcf
-├── sample_R1.fastq.gz
-├── sample_R2.fastq.gz
-└── samplesheet.csv
+├── sample_R1.fastq
+├── sample_R2.fastq
+├── samplesheet.csv
+└── truth.vcf
 ```
 
-It contains two heterozygous SNPs and one heterozygous 2-bp insertion on a deterministic synthetic chromosome. The fixture is designed to validate workflow behavior, not benchmark clinical accuracy.
+It is a deterministic **4 kb** synthetic chromosome with **60 paired fragments**. The truth set contains:
+
+- heterozygous SNP at `chrSynthetic:1001` (`A>C`);
+- heterozygous SNP at `chrSynthetic:2201` (`T>A`);
+- heterozygous 2-bp insertion at `chrSynthetic:3200` (`A>ATT`).
+
+The fragment starts are intentionally distinct across reference and alternate haplotypes so duplicate marking does not erase the synthetic alternate evidence. The fixture is designed to validate workflow behavior, not benchmark clinical accuracy.
 
 Run the complete synthetic smoke test after provisioning the containers:
 
@@ -159,9 +187,15 @@ sbatch scripts/submit_biological_test.sbatch \
   --profile slurm
 ```
 
-Regenerate the committed fixture with `python3 bin/generate_test_fixture.py --output-dir <dir>`. The committed FASTQs are verified byte-for-byte against this generator in the Python test suite.
+Regenerate the committed fixture with:
 
-See `docs/testing.md`.
+```bash
+python3 bin/generate_test_fixture.py --output-dir /tmp/synthetic-diploid
+```
+
+The Python test suite regenerates the fixture and verifies the core files byte-for-byte against the committed dataset.
+
+See [`docs/testing.md`](docs/testing.md).
 
 ## Hard-filter defaults
 
@@ -214,6 +248,10 @@ results/
 │   ├── *.filtered.vcf.gz
 │   └── *.bcftools.stats.txt
 └── pipeline_info/
+    ├── execution_report.html
+    ├── execution_timeline.html
+    ├── execution_trace.txt
+    └── pipeline_dag.html
 ```
 
 When BQSR is skipped, HaplotypeCaller consumes the duplicate-marked BAM directly.
@@ -222,7 +260,7 @@ When BQSR is skipped, HaplotypeCaller consumes the duplicate-marked BAM directly
 
 The analysis DAG does not download containers, references, or known-sites resources. Provision them before submitting compute work. The runner disables Nextflow's nonessential latest-version check by default to avoid outbound-HTTPS timeouts on restricted compute nodes.
 
-See `docs/offline-hpc.md`.
+See [`docs/offline-hpc.md`](docs/offline-hpc.md).
 
 ## Scope
 
